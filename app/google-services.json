@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "469121402985",
+    "project_id": "smart-parking-bccee",
+    "storage_bucket": "smart-parking-bccee.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469121402985:android:ab79fbb16bf8d100da3af8",
+        "android_client_info": {
+          "package_name": "com.github.stephenwanjala.smartparking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASYOWY1cthuFZha9GHDYC2V0GpGMvUPok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
