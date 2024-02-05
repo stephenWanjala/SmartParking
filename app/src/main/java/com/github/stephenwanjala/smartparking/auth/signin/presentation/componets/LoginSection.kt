@@ -26,7 +26,7 @@ import com.github.stephenwanjala.smartparking.auth.core.util.asString
 import com.github.stephenwanjala.smartparking.auth.signin.presentation.LoginState
 import com.github.stephenwanjala.smartparking.auth.signin.presentation.LoginUiEvent
 import com.github.stephenwanjala.smartparking.auth.signin.presentation.LoginViewModel
-import com.wantech.gdsc_msu.core.presentation.LoadingDialog
+import com.github.stephenwanjala.smartparking.auth.core.presentation.LoadingDialog
 
 
 @Composable

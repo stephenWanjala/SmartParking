@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.stephenwanjala.smartparking.R
 import com.github.stephenwanjala.smartparking.auth.core.presentation.AButton
+import com.github.stephenwanjala.smartparking.auth.core.presentation.LoadingDialog
 import com.github.stephenwanjala.smartparking.auth.core.util.asString
 import com.github.stephenwanjala.smartparking.auth.signin.presentation.componets.InputTextField
 import com.github.stephenwanjala.smartparking.auth.signin.presentation.componets.LogoSection
@@ -51,7 +52,6 @@ import com.github.stephenwanjala.smartparking.auth.signin.presentation.componets
 import com.github.stephenwanjala.smartparking.auth.sigup.presentation.SignUpState
 import com.github.stephenwanjala.smartparking.auth.sigup.presentation.SignUpViewModel
 import com.github.stephenwanjala.smartparking.auth.sigup.presentation.SignupEvent
-import com.wantech.gdsc_msu.core.presentation.LoadingDialog
 import kotlinx.coroutines.launch
 
 
@@ -81,6 +81,7 @@ fun SignUpSection(
         ) {
             item {
                 LogoSection()
+
                 Card(
                     modifier = Modifier
                         .padding(horizontal = 12.dp, vertical = 32.dp)
@@ -100,6 +101,7 @@ fun SignUpSection(
                         if (signUpUiState.value.isLoading) {
                             LoadingDialog()
                         }
+
                     }
 
                 }

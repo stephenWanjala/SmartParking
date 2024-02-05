@@ -1,4 +1,4 @@
-package com.wantech.gdsc_msu.core.presentation
+package com.github.stephenwanjala.smartparking.auth.core.presentation
 
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.size
@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun BoxScope.LoadingDialog() {
     CircularProgressIndicator(
-        color = MaterialTheme.colorScheme.primary,
         modifier = Modifier
             .size(50.dp)
-            .align(Alignment.Center)
+            .align(Alignment.Center),
+        color = MaterialTheme.colorScheme.primary
     )
 }
