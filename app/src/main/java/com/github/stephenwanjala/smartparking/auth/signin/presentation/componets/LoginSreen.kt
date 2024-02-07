@@ -14,10 +14,13 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.github.stephenwanjala.smartparking.auth.destinations.SignUpScreenDestination
 import com.github.stephenwanjala.smartparking.auth.signin.presentation.LoginViewModel
+import com.github.stephenwanjala.smartparking.destinations.HomeScreenDestination
+import com.github.stephenwanjala.smartparking.destinations.LoginScreenDestination
+import com.github.stephenwanjala.smartparking.destinations.SignUpScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
+import com.ramcosta.composedestinations.navigation.popUpTo
 
 
 @Destination(
@@ -31,7 +34,11 @@ fun LoginScreen(
     val isUserExist = viewModel.isCurrentUserExist.collectAsState(initial = true)
     LaunchedEffect(isUserExist.value) {
         if (isUserExist.value) {
-
+            navigator.navigate(HomeScreenDestination) {
+                popUpTo(LoginScreenDestination) {
+                    inclusive = true
+                }
+            }
         }
     }
 
@@ -54,9 +61,13 @@ fun LoginScreen(
 //            verticalArrangement = Arrangement.Center
             ) {
                 LoginSection(
-                    onNavigate = {  },
+                    onNavigate = { },
                     onNavigateToSignUpScreen = {
-                            navigator.navigate(SignUpScreenDestination)
+                        navigator.navigate(SignUpScreenDestination) {
+                            popUpTo(LoginScreenDestination) {
+                                inclusive = true
+                            }
+                        }
                     },
                     viewModel = viewModel
                 )
