@@ -20,7 +20,7 @@ fun SignUpScreen(
         onNavigate = {
             navigator.navigate(HomeScreenDestination) {
                 popUpTo(LoginScreenDestination) {
-                    inclusive = true
+                    inclusive = true 
                 }
             }
         },

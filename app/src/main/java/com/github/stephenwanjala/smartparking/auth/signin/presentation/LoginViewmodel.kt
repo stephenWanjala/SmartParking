@@ -25,7 +25,13 @@ class LoginViewModel
     private val _loginUIState = MutableSharedFlow<LoginState>()
     val loginUpIState = _loginUIState.asSharedFlow()
 
+    val isCurrentUserExist: Flow<Boolean>
 
+
+    init{
+        isCurrentUserExist= authRepository.isCurrentUserExist()
+
+    }
     fun onEvent(event: LoginUiEvent) {
         when (event) {
             is LoginUiEvent.EnteredEmail -> {
@@ -82,10 +88,7 @@ class LoginViewModel
         }
     }
 
-    val isCurrentUserExist: Flow<Boolean>
-        get() {
-            return authRepository.isCurrentUserExist()
-        }
+
 
     fun getUserEmail(): String {
         var email: String by mutableStateOf("")

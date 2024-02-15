@@ -9,8 +9,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -18,6 +21,7 @@ import com.github.stephenwanjala.smartparking.auth.signin.presentation.LoginView
 import com.github.stephenwanjala.smartparking.destinations.HomeScreenDestination
 import com.github.stephenwanjala.smartparking.destinations.LoginScreenDestination
 import com.github.stephenwanjala.smartparking.destinations.SignUpScreenDestination
+import com.google.firebase.auth.FirebaseAuth
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
@@ -31,47 +35,70 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigator: DestinationsNavigator
 ) {
-    val isUserExist = viewModel.isCurrentUserExist.collectAsState(initial = true)
-    LaunchedEffect(isUserExist.value) {
-        if (isUserExist.value) {
-            navigator.navigate(HomeScreenDestination) {
-                popUpTo(LoginScreenDestination) {
-                    inclusive = true
-                }
-            }
+    val auth = FirebaseAuth.getInstance()
+    var isAuthenticated by remember { mutableStateOf(auth.currentUser != null) }
+
+    DisposableEffect(auth) {
+        val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
+            isAuthenticated = firebaseAuth.currentUser != null
+        }
+        auth.addAuthStateListener(authStateListener)
+        onDispose {
+            auth.removeAuthStateListener(authStateListener)
         }
     }
 
-    if (!isUserExist.value) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .animateContentSize(
-                        animationSpec = tween(
-                            durationMillis = 500,
-                            easing = FastOutSlowInEasing
-                        )
-                    ),
 
-                horizontalAlignment = Alignment.CenterHorizontally,
-//            verticalArrangement = Arrangement.Center
-            ) {
-                LoginSection(
-                    onNavigate = { },
-                    onNavigateToSignUpScreen = {
-                        navigator.navigate(SignUpScreenDestination) {
-                            popUpTo(LoginScreenDestination) {
-                                inclusive = true
-                            }
-                        }
-                    },
-                    viewModel = viewModel
-                )
+
+
+
+    if (isAuthenticated) {
+        navigator.navigate(HomeScreenDestination) {
+            popUpTo(LoginScreenDestination) {
+                inclusive = true
             }
+        }
+
+    } else {
+        LoginScreenUi(navigator = navigator, viewModel = viewModel)
+    }
+}
+
+
+@Composable
+fun LoginScreenUi(
+    modifier: Modifier = Modifier,
+    navigator: DestinationsNavigator,
+    viewModel: LoginViewModel
+) {
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Column(
+            modifier = modifier
+                .fillMaxWidth()
+                .animateContentSize(
+                    animationSpec = tween(
+                        durationMillis = 500,
+                        easing = FastOutSlowInEasing
+                    )
+                ),
+
+            horizontalAlignment = Alignment.CenterHorizontally,
+//            verticalArrangement = Arrangement.Center
+        ) {
+            LoginSection(
+                onNavigate = { },
+                onNavigateToSignUpScreen = {
+                    navigator.navigate(SignUpScreenDestination) {
+                        popUpTo(LoginScreenDestination) {
+                            inclusive = true
+                        }
+                    }
+                },
+                viewModel = viewModel
+            )
         }
     }
 }
