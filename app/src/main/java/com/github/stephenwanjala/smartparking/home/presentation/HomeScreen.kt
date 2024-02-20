@@ -1,6 +1,8 @@
 package com.github.stephenwanjala.smartparking.home.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -13,6 +15,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import com.github.stephenwanjala.smartparking.R
 import com.ramcosta.composedestinations.annotation.Destination
@@ -26,10 +29,7 @@ fun HomeScreen() {
     ) {
         Scaffold(
             topBar = {
-                SmartParkingApBar(
-                    onNavigationIconClick = {},
-                    username = "Stephen"
-                )
+                SmartParkingApBar()
             },
 
             ) { paddingValues ->
@@ -42,16 +42,25 @@ fun HomeScreen() {
 @Composable
 fun SmartParkingApBar(
     modifier: Modifier = Modifier,
-    onNavigationIconClick: () -> Unit,
-    username: String
-) {
 
-    CenterAlignedTopAppBar(title = {
-        Text(text = stringResource(id = R.string.app_name))
-    },
+    ) {
+
+    CenterAlignedTopAppBar(
+        modifier = modifier,
+        title = {
+            Text(text = stringResource(id = R.string.app_name))
+        },
         actions = {
-            IconButton(onClick = { /*TODO*/ }) {
-                Icon(imageVector = Icons.Rounded.Person, contentDescription = "User")
+            IconButton(
+                modifier = Modifier
+                    .background(color = MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
+                    .clip(CircleShape),
+                onClick = { /*TODO*/ }) {
+                Icon(
+                    imageVector = Icons.Rounded.Person, contentDescription = "User",
+                    tint=MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.clip(CircleShape)
+                )
             }
         })
 }
