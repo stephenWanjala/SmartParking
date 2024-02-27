@@ -1,10 +1,30 @@
 {
   "project_info": {
     "project_number": "469121402985",
+    "firebase_url": "https://smart-parking-bccee-default-rtdb.firebaseio.com",
     "project_id": "smart-parking-bccee",
     "storage_bucket": "smart-parking-bccee.appspot.com"
   },
   "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:469121402985:android:78138ee2321519b6da3af8",
+        "android_client_info": {
+          "package_name": "com.github.parking.smartparking"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyASYOWY1cthuFZha9GHDYC2V0GpGMvUPok"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
     {
       "client_info": {
         "mobilesdk_app_id": "1:469121402985:android:ab79fbb16bf8d100da3af8",

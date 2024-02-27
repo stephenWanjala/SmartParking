@@ -8,11 +8,11 @@ plugins {
 }
 
 android {
-    namespace = "com.github.stephenwanjala.smartparking"
+    namespace = "com.github.parking.smartparking"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.github.stephenwanjala.smartparking"
+        applicationId = "com.github.parking.smartparking"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
