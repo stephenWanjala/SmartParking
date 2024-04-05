@@ -1,5 +1,8 @@
 package com.github.parking.smartparking.home.presentation
 
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,16 +66,22 @@ fun ParkingProviderDialog(
             dismissOnBackPress = false,
         )
     ) {
+        val percent = animateIntAsState(targetValue = 5, label = "card Corner Radius",
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioHighBouncy,
+                stiffness = Spring.StiffnessMedium
+            ),
+        )
+
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            shape = RoundedCornerShape(16.dp),
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(percent.value),
         ) {
             Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Row(
@@ -105,13 +114,17 @@ fun ParkingProviderDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 LazyVerticalGrid(columns = GridCells.Adaptive(120.dp)) {
                     items(provider.slots) { slot ->
-                        HorizontalDivider()
+                        HorizontalDivider(
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                        )
                         SlotCard(
                             slot = slot,
                             modifier = Modifier.padding(8.dp)
                         )
                     }
                 }
+//                Continue Button Displayed here on select of a slot
+
             }
 
         }
