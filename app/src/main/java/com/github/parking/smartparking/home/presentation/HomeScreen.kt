@@ -33,15 +33,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.parking.smartparking.R
+import com.github.parking.smartparking.destinations.ParkingProviderDialogDestination
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Destination
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    navigator: DestinationsNavigator
+) {
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background,
     ) {
         Scaffold(
             topBar = {
@@ -54,9 +58,9 @@ fun HomeScreen() {
                 columns = StaggeredGridCells.Adaptive(200.dp)
             ) {
                 items(ParkingProvider.providers) { provider ->
-                    ParkingProviderCard(provider = provider) {
-
-                    }
+                    ParkingProviderCard(provider = provider, onclick = {
+                        navigator.navigate(ParkingProviderDialogDestination(it))
+                    })
                 }
 
             }

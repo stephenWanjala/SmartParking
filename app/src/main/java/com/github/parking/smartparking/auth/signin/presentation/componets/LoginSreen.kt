@@ -23,13 +23,13 @@ import com.github.parking.smartparking.destinations.LoginScreenDestination
 import com.github.parking.smartparking.destinations.SignUpScreenDestination
 import com.google.firebase.auth.FirebaseAuth
 import com.ramcosta.composedestinations.annotation.Destination
+import com.ramcosta.composedestinations.annotation.RootNavGraph
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.popUpTo
 
 
-@Destination(
-    start = true
-)
+@RootNavGraph(start = true)
+@Destination
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),

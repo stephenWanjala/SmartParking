@@ -75,7 +75,7 @@ dependencies {
     debugImplementation(libs.androidx.ui.test.manifest)
 
     implementation(libs.destinations.core)
-//    implementation(libs.destinations.animations.core)
+    implementation(libs.destinations.animations.core)
     ksp(libs.ksp)
 
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
