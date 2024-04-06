@@ -1,4 +1,4 @@
-package com.github.parking.smartparking.home.presentation.components
+package com.github.parking.smartparking.home.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -23,7 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
-import com.github.parking.smartparking.home.presentation.BookNowButton
+import com.github.parking.smartparking.home.presentation.components.BookNowButton
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyleBottomSheet

@@ -1,4 +1,4 @@
-package com.github.parking.smartparking.home.presentation
+package com.github.parking.smartparking.home.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
