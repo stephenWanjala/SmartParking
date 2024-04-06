@@ -33,7 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.parking.smartparking.R
-import com.github.parking.smartparking.destinations.ParkingProviderDialogDestination
+import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -59,7 +59,7 @@ fun HomeScreen(
             ) {
                 items(ParkingProvider.providers) { provider ->
                     ParkingProviderCard(provider = provider, onclick = {
-                        navigator.navigate(ParkingProviderDialogDestination(it))
+                        navigator.navigate(ParkingProviderScreenDestination(it))
                     })
                 }
 

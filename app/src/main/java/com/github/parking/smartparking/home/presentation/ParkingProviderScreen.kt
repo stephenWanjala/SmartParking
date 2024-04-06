@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -17,11 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,36 +34,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
+import com.github.parking.smartparking.destinations.ChekoutSheetDestination
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.github.parking.smartparking.home.domain.model.Slot
+import com.github.parking.smartparking.home.presentation.components.SlotCard
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import com.ramcosta.composedestinations.spec.DestinationStyle
 
 
-object NonDismissableDialog : DestinationStyle.Dialog {
-    override val properties = DialogProperties(
-        dismissOnClickOutside = false,
-        dismissOnBackPress = false,
-    )
-}
-
-@Destination(style = NonDismissableDialog::class)
+@Destination
 @Composable
-fun ParkingProviderDialog(
+fun ParkingProviderScreen(
     provider: ParkingProvider,
     navigator: DestinationsNavigator,
 
     ) {
-    Dialog(
-        onDismissRequest = navigator::popBackStack,
-        properties = DialogProperties(
-            dismissOnClickOutside = false,
-            dismissOnBackPress = false,
-        )
-    ) {
+    Scaffold(
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
         val percent = animateIntAsState(
             targetValue = 5, label = "card Corner Radius",
             animationSpec = spring(
@@ -72,9 +62,10 @@ fun ParkingProviderDialog(
 
         var selectedSlot by remember { mutableStateOf<Slot?>(null) }
 
-        Card(
+        Surface(
             modifier = Modifier
-                .fillMaxWidth(),
+                .padding(paddingValues = paddingValues)
+                .fillMaxSize(),
             shape = RoundedCornerShape(percent.value),
         ) {
             Column(
@@ -127,9 +118,17 @@ fun ParkingProviderDialog(
                     }
                 }
 
-                selectedSlot?.let {slot: Slot ->
-                    Button(onClick = { /*TODO*/ }) {
+                selectedSlot?.let { slot: Slot ->
+                    Button(onClick = {
+                        navigator.navigate(
+                            ChekoutSheetDestination(
+                                provider = provider,
+                                slotId = slot.id
+                            )
+                        )
+                    }) {
                         Text(text = "Book Slot ${slot.number}")
+
                     }
                 }
 

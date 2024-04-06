@@ -1,4 +1,4 @@
-package com.github.parking.smartparking.home.presentation
+package com.github.parking.smartparking.home.presentation.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -26,13 +26,18 @@ import com.github.parking.smartparking.home.domain.model.Slot
 
 @Composable
 fun SlotCard(
+    modifier: Modifier,
     slot: Slot,
     selectedSlot: Slot?,
-    modifier: Modifier, onSelect: (slot: Slot?) -> Unit
+    onSelect: (slot: Slot?) -> Unit
 ) {
     Card(
         modifier = modifier
-            .let { if (!slot.isOccupied) it.clickable { onSelect(if (slot == selectedSlot) null else slot) } else it },
+            .let {
+                if (!slot.isOccupied) it.clickable {
+                    onSelect(if (slot == selectedSlot) null else slot)
+                } else it
+            },
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
     ) {
@@ -41,9 +46,11 @@ fun SlotCard(
                 .fillMaxWidth()
                 .height(80.dp)
                 .background(
-                    color = if (!slot.isOccupied) MaterialTheme.colorScheme.tertiaryContainer.copy(
-                        alpha = 0.2f
-                    ) else Color.Unspecified,
+                    color = if (!slot.isOccupied) {
+                       if (slot == selectedSlot) MaterialTheme.colorScheme.primary.copy(alpha = 0.8f) else  MaterialTheme.colorScheme.tertiaryContainer.copy(
+                           alpha = 0.2f
+                       )
+                    }else Color.Unspecified,
                     shape = RoundedCornerShape(16.dp)
                 )
                 .clip(RoundedCornerShape(16.dp)),
