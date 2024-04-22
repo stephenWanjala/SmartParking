@@ -16,6 +16,7 @@ class PaymentRepositoryImpl @Inject constructor() : PaymentRepository {
         return flow {
             emit(Resource.Loading())
             try {
+                emit(Resource.Loading())
                 val response = api.sendPush(request)
                 emit(Resource.Success(response!!))
             } catch (e: Exception) {
