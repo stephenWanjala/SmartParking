@@ -5,17 +5,13 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.github.parking.smartparking.home.domain.model.AccessToken
 import com.github.parking.smartparking.home.domain.model.STKPush
-import com.github.parking.smartparking.home.domain.model.STKPushQuery
-import com.github.parking.smartparking.home.domain.model.STKPushQueryResponse
-import com.github.parking.smartparking.home.domain.model.STKPushRequest
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
 import com.github.parking.smartparking.home.domain.utils.Utils
+import com.github.stephenwanjala.smartparking.home.domain.model.STKPushResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.http.Body
-import retrofit2.http.POST
 
 object MpesaPay {
     private var mApiClient = ApiClient()
@@ -32,7 +28,7 @@ object MpesaPay {
         transactionType: String,
         passKey: String,
         callbackUrl: String
-    ) :STKPushResponse?{
+    ) : STKPushResponse?{
         model.phoneNumber = phoneNumber
         model.payBill = payBill
         model.partyB = partyB
@@ -53,7 +49,7 @@ object MpesaPay {
     fun sendPush(
         phoneNumber: String, cash: String, payBill: String, partyB: String,
         accReference: String, transDesc: String, passKey: String, callbackUrl: String
-    ):STKPushResponse? {
+    ): STKPushResponse? {
        return sendPush(
             phoneNumber,
             cash,
@@ -73,7 +69,7 @@ object MpesaPay {
     @RequiresApi(Build.VERSION_CODES.O)
     internal fun performSTKPush(
         transactionDetails: TransactionDetails
-    ):STKPushResponse? {
+    ): STKPushResponse? {
         val timestamp = Utils.timestamp
         val stkPush = STKPush(
             transactionDetails.payBill!!,
