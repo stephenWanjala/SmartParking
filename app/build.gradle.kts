@@ -1,10 +1,12 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     id("com.google.gms.google-services")
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
-    id ("kotlin-parcelize")
+    id("kotlin-parcelize")
 }
 
 android {
@@ -23,9 +25,35 @@ android {
             useSupportLibrary = true
         }
     }
+    val localProperties = Properties()
+    localProperties.load(project.rootProject.file("local.properties").inputStream())
+
 
     buildTypes {
+        debug {
+            isDebuggable = true
+            buildConfigField(
+                "String",
+                "CONSUMER_KEY",
+                localProperties.getProperty("CONSUMER_KEY")
+            )
+            buildConfigField(
+                "String",
+                "CONSUMER_SECRET",
+                localProperties.getProperty("CONSUMER_SECRET")
+            )
+        }
         release {
+            buildConfigField(
+                "String",
+                "CONSUMER_SECRET",
+                localProperties.getProperty("CONSUMER_SECRET")
+            )
+            buildConfigField(
+                "String",
+                "CONSUMER_KEY",
+                localProperties.getProperty("CONSUMER_KEY")
+            )
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -42,6 +70,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig=true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
@@ -78,18 +107,26 @@ dependencies {
     implementation(libs.destinations.animations.core)
     ksp(libs.ksp)
 
-    implementation (libs.androidx.lifecycle.viewmodel.ktx)
-    implementation (libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
-    ksp (libs.androidx.hilt.compiler)
+    ksp(libs.androidx.hilt.compiler)
 
     //    coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-    implementation (libs.androidx.material.icons.core)
-    implementation (libs.androidx.material.icons.extended)
+    implementation(libs.androidx.material.icons.core)
+    implementation(libs.androidx.material.icons.extended)
 
+    implementation(libs.okhttp)
+
+    implementation(libs.stripe.android)
+    //Retrofit-
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+    implementation(libs.logging.interceptor)
+    implementation(libs.gson)
 }
