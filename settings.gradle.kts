@@ -10,10 +10,6 @@ pluginManagement {
 
         mavenCentral()
         gradlePluginPortal()
-        maven {
-            url=uri("https://mvnrepository.com/artifact/com.revosleap.mpesapush/mpesapush")
-            jcenter()
-        }
     }
 }
 dependencyResolutionManagement {
@@ -22,10 +18,7 @@ dependencyResolutionManagement {
         google()
 
         mavenCentral()
-        maven {
-            url=uri("https://mvnrepository.com/artifact/com.revosleap.mpesapush/mpesapush")
-            jcenter()
-        }
+
     }
 }
 

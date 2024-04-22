@@ -37,7 +37,7 @@ fun BookNowButton(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "$$price",
+                text = "Kes $price",
                 textAlign = TextAlign.Center
             )
             Text(

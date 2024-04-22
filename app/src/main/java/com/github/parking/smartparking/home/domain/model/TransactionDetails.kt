@@ -2,12 +2,15 @@ package com.github.parking.smartparking.home.domain.model
 
 import java.io.Serializable
 
-class TransactionDetails(
-    var phoneNumber: String?, var passKey:String?,
-    var cashAmount:String?, var payBill:String?,
-    var accReference:String?, var callBackUrl:String?,
-    var partyA:String?, var partyB:String?,
-    var description:String?, var type:String?): Serializable {
-    constructor() : this(null,null,null,null,null,null,null,null,null,null)
-
-}
+data class TransactionDetails(
+    var phoneNumber: String? = null,
+    var passKey: String? = null,
+    var cashAmount: Int? = null,
+    var payBill: String? = null,
+    var accReference: String? = null,
+    var callBackUrl: String? = null,
+    var partyA: String? = null,
+    var partyB: String? = null,
+    var description: String? = null,
+    var type: String? = null
+) : Serializable

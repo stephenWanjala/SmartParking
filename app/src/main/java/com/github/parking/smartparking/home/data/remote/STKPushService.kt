@@ -2,7 +2,7 @@ package com.github.parking.smartparking.home.data.remote
 
 import com.github.parking.smartparking.home.domain.model.AccessToken
 import com.github.parking.smartparking.home.domain.model.STKPush
-import com.github.stephenwanjala.smartparking.home.domain.model.STKPushResponse
+import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET

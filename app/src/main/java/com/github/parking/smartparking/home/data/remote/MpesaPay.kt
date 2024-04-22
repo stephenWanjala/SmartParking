@@ -8,7 +8,7 @@ import com.github.parking.smartparking.home.domain.model.STKPush
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
 import com.github.parking.smartparking.home.domain.utils.Utils
-import com.github.stephenwanjala.smartparking.home.domain.model.STKPushResponse
+import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,7 +35,7 @@ object MpesaPay {
         model.accReference = accReference
         model.description = transDesc
         model.type = transactionType
-        model.cashAmount = cash
+        model.cashAmount = cash.toInt()
         model.partyA = partyA
         model.passKey = passKey
         model.callBackUrl = callbackUrl
@@ -79,7 +79,7 @@ object MpesaPay {
             ),
             timestamp,
             transactionDetails.type!!,
-            transactionDetails.cashAmount!!,
+            transactionDetails.cashAmount!!.toString(),
             Utils.sanitizePhoneNumber(transactionDetails.phoneNumber!!),
             transactionDetails.partyB!!,
             Utils.sanitizePhoneNumber(transactionDetails.phoneNumber!!),

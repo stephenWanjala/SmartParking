@@ -30,7 +30,10 @@ fun InputTextField(
         keyboardType = KeyboardType.Text
     ),
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    onSendAction: (() -> Unit?)? = null
+    onSendAction: (() -> Unit?)? = null,
+    enabled: Boolean = true,
+    isError:Boolean =false,
+    supportText:String?=null
 
 ) {
     Box(
@@ -60,7 +63,14 @@ fun InputTextField(
             ),
             visualTransformation = visualTransformation,
             maxLines = maxLines,
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(10.dp),
+            enabled = enabled,
+            isError = isError,
+            supportingText = {
+                supportText?.let {text->
+                    if (isError) Text(text = text)
+                }
+            }
         )
 
     }

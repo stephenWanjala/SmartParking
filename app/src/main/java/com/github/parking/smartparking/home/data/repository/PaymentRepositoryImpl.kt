@@ -3,7 +3,7 @@ package com.github.parking.smartparking.home.data.repository
 import com.github.parking.smartparking.auth.core.util.Resource
 import com.github.parking.smartparking.auth.core.util.UiText
 import com.github.parking.smartparking.home.data.remote.MpesaPay
-import com.github.stephenwanjala.smartparking.home.domain.model.STKPushResponse
+import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import com.github.parking.smartparking.home.domain.PaymentRepository
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import kotlinx.coroutines.flow.Flow

@@ -1,4 +1,4 @@
-package com.github.stephenwanjala.smartparking.home.domain.model
+package com.github.parking.smartparking.home.domain.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

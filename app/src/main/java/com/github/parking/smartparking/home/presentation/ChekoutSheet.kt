@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.github.parking.smartparking.destinations.BookingDialogDestination
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.github.parking.smartparking.home.presentation.components.BookNowButton
 import com.ramcosta.composedestinations.annotation.Destination
@@ -125,7 +126,12 @@ fun ChekoutSheet(
             }
 
             BookNowButton(price = provider.hourlyRate) {
-
+                navigator.navigate(
+                    BookingDialogDestination(
+                        provider = provider,
+                        selectedSlotNumber = slot.number
+                    )
+                )
             }
 
         }
