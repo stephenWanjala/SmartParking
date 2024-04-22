@@ -5,18 +5,23 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.github.parking.smartparking.home.domain.model.AccessToken
 import com.github.parking.smartparking.home.domain.model.STKPush
+import com.github.parking.smartparking.home.domain.model.STKPushQuery
+import com.github.parking.smartparking.home.domain.model.STKPushQueryResponse
+import com.github.parking.smartparking.home.domain.model.STKPushRequest
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
 import com.github.parking.smartparking.home.domain.utils.Utils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 object MpesaPay {
     private var mApiClient = ApiClient()
     private var model = TransactionDetails()
 
-    fun sendPush(
+    private fun sendPush(
         phoneNumber: String,
         cash: String,
         payBill: String,
@@ -27,7 +32,7 @@ object MpesaPay {
         transactionType: String,
         passKey: String,
         callbackUrl: String
-    ) {
+    ) :STKPushResponse?{
         model.phoneNumber = phoneNumber
         model.payBill = payBill
         model.partyB = partyB
@@ -38,18 +43,18 @@ object MpesaPay {
         model.partyA = partyA
         model.passKey = passKey
         model.callBackUrl = callbackUrl
-        getAccessToken(model)
+       return  getAccessToken(model)
     }
 
-    fun sendPush(transactionDetails: TransactionDetails) {
-        getAccessToken(transactionDetails)
+    fun sendPush(transactionDetails: TransactionDetails): STKPushResponse?{
+        return getAccessToken(transactionDetails)
     }
 
     fun sendPush(
         phoneNumber: String, cash: String, payBill: String, partyB: String,
         accReference: String, transDesc: String, passKey: String, callbackUrl: String
-    ) {
-        sendPush(
+    ):STKPushResponse? {
+       return sendPush(
             phoneNumber,
             cash,
             payBill,
@@ -61,13 +66,14 @@ object MpesaPay {
             passKey,
             callbackUrl
         )
+
     }
 
 
     @RequiresApi(Build.VERSION_CODES.O)
     internal fun performSTKPush(
         transactionDetails: TransactionDetails
-    ) {
+    ):STKPushResponse? {
         val timestamp = Utils.timestamp
         val stkPush = STKPush(
             transactionDetails.payBill!!,
@@ -87,14 +93,16 @@ object MpesaPay {
         )
 
         mApiClient.setGetAccessToken(false)
-
-        mApiClient.mpesaService().sendPush(stkPush).enqueue(object : Callback<STKPush> {
-            override fun onResponse(call: Call<STKPush>, response: Response<STKPush>) {
+        var stkPushResponse: STKPushResponse? = null
+        mApiClient.mpesaService().sendPush(stkPush).enqueue(object : Callback<STKPushResponse> {
+            override fun onResponse(call: Call<STKPushResponse>, response: Response<STKPushResponse>) {
                 try {
                     if (response.isSuccessful) {
                         Log.v("Resp", response.body().toString())
+                        stkPushResponse = response.body()
                     } else {
-
+                        Log.v("Resp", response.body().toString())
+                        stkPushResponse = response.body()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -102,13 +110,15 @@ object MpesaPay {
 
             }
 
-            override fun onFailure(call: Call<STKPush>, t: Throwable) {
+            override fun onFailure(call: Call<STKPushResponse>, t: Throwable) {
 
             }
         })
+        return stkPushResponse
     }
 
-    internal fun getAccessToken(transactionDetails: TransactionDetails) {
+    private fun getAccessToken(transactionDetails: TransactionDetails): STKPushResponse?{
+        var stkPushResponse: STKPushResponse? = null
         mApiClient.setGetAccessToken(true)
         mApiClient.mpesaService().accessToken().enqueue(object : Callback<AccessToken> {
             @RequiresApi(Build.VERSION_CODES.O)
@@ -116,15 +126,19 @@ object MpesaPay {
 
                 if (response.isSuccessful) {
                     mApiClient.setAuthToken(response.body()!!.accessToken)
-                    performSTKPush(transactionDetails)
+                 stkPushResponse= performSTKPush(transactionDetails)
                     Log.v("Resp", response.body().toString())
-                } else Log.v("Resp", response.body().toString())
+                } else {
+                    Log.v("Resp", response.body().toString())
+                    stkPushResponse = null
+                }
             }
 
             override fun onFailure(call: Call<AccessToken>, t: Throwable) {
                 t.printStackTrace()
             }
         })
+        return stkPushResponse
     }
 }
 

@@ -16,5 +16,7 @@ interface STKPushService {
     fun accessToken(): Call<AccessToken>
 
     @POST("mpesa/stkpush/v1/processrequest")
-    fun sendPush(@Body stkPush: STKPush): Call<STKPush>
+    fun sendPush(@Body stkPush: STKPush): Call<STKPushResponse>
+
+
 }

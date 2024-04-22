@@ -3,6 +3,7 @@ package com.github.parking.smartparking.di
 import com.github.parking.smartparking.auth.core.data.repositoryImpl.AuthRepositoryImpl
 import com.github.parking.smartparking.auth.core.domain.repository.AuthRepository
 import com.github.parking.smartparking.auth.sigup.domain.usecase.SignUpUseCase
+import com.github.parking.smartparking.home.domain.PaymentRepository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -12,6 +13,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
+import com.github.parking.smartparking.home.data.repository.PaymentRepositoryImpl
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -34,5 +36,11 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideSignUpUseCase(authRepository: AuthRepository): SignUpUseCase = SignUpUseCase(authRepository)
+    fun provideSignUpUseCase(authRepository: AuthRepository): SignUpUseCase =
+        SignUpUseCase(authRepository)
+
+    @Provides
+    @Singleton
+    fun providePaymentRepository(): PaymentRepository = PaymentRepositoryImpl()
+
 }
