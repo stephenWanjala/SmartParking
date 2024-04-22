@@ -41,26 +41,24 @@ android {
             buildConfigField(
                 "String",
                 "CONSUMER_KEY",
-               "\"\${System.getenv(\"CONSUMER_KEY\")\"" ?: localProperties?.getProperty("CONSUMER_KEY")!!
+                "\"${System.getenv("CONSUMER_KEY") ?: localProperties?.getProperty("CONSUMER_KEY")}\""
             )
             buildConfigField(
                 "String",
                 "CONSUMER_SECRET",
-                "\"\${System.getenv(\"CONSUMER_SECRET\")}\""
-                    ?: localProperties?.getProperty("CONSUMER_SECRET")!!
+                "\"${System.getenv("CONSUMER_SECRET") ?: localProperties?.getProperty("CONSUMER_SECRET")}\""
             )
         }
         release {
             buildConfigField(
                 "String",
                 "CONSUMER_SECRET",
-                "\"\${System.getenv(\"CONSUMER_SECRET\")}\""
-                    ?: localProperties?.getProperty("CONSUMER_SECRET")!!
+                "\"${System.getenv("CONSUMER_SECRET") ?: localProperties?.getProperty("CONSUMER_SECRET")}\""
             )
             buildConfigField(
                 "String",
                 "CONSUMER_KEY",
-                "\"\${System.getenv(\"CONSUMER_KEY\")}\"" ?: localProperties?.getProperty("CONSUMER_KEY")!!
+                "\"${System.getenv("CONSUMER_KEY") ?: localProperties?.getProperty("CONSUMER_KEY")}\""
             )
             isMinifyEnabled = false
             proguardFiles(
