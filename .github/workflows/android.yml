@@ -36,8 +36,17 @@ jobs:
       - name: Set execution flag for gradlew
         run: chmod +x gradlew
 
+      - name: Set API keys as environment variables
+        env:
+          CONSUMER_KEY: ${{ secrets.CONSUMER_KEY }}
+          CONSUMER_SECRET: ${{ secrets.CONSUMER_SECRET }}
+
       - name: Build APK
-        run: bash ./gradlew assembleDebug --stacktrace
+        run: |
+          ./gradlew assembleDebug \
+            -PconsumerKey="${CONSUMER_KEY}" \
+            -PconsumerSecret="${CONSUMER_SECRET}" \
+            --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v2
