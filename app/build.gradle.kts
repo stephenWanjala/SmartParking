@@ -123,7 +123,7 @@ dependencies {
 
     implementation(libs.okhttp)
 
-    implementation(libs.stripe.android)
+
     //Retrofit-
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

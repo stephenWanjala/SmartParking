@@ -22,9 +22,9 @@ firebaseAuth = "22.3.1"
 firebaseDatabase = "20.3.1"
 firebaseFirestore = "24.11.1"
 materialIconsCore = "1.6.0"
-material3="1.2.0-rc01"
+material3 = "1.2.0-rc01"
 okhttp = "4.9.1"
-stripeAndroid = "20.17.0"
+
 
 
 [libraries]
@@ -64,7 +64,6 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 firebase-database = { group = "com.google.firebase", name = "firebase-database", version.ref = "firebaseDatabase" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore", version.ref = "firebaseFirestore" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
-stripe-android = { module = "com.stripe:stripe-android", version.ref = "stripeAndroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
