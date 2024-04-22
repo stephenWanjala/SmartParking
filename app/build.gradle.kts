@@ -25,8 +25,14 @@ android {
             useSupportLibrary = true
         }
     }
-    val localProperties = Properties()
-    localProperties.load(project.rootProject.file("local.properties").inputStream())
+    var localProperties: Properties? = null
+    try {
+        localProperties = Properties()
+        localProperties.load(project.rootProject.file("local.properties").inputStream())
+
+    } catch (_: Exception) {
+
+    }
 
 
     buildTypes {
@@ -35,24 +41,24 @@ android {
             buildConfigField(
                 "String",
                 "CONSUMER_KEY",
-                localProperties.getProperty("CONSUMER_KEY")
+                localProperties?.getProperty("CONSUMER_KEY") ?: System.getenv("CONSUMER_KEY")
             )
             buildConfigField(
                 "String",
                 "CONSUMER_SECRET",
-                localProperties.getProperty("CONSUMER_SECRET")
+                localProperties?.getProperty("CONSUMER_SECRET") ?: System.getenv("CONSUMER_SECRET")
             )
         }
         release {
             buildConfigField(
                 "String",
                 "CONSUMER_SECRET",
-                localProperties.getProperty("CONSUMER_SECRET")
+                localProperties?.getProperty("CONSUMER_SECRET") ?: System.getenv("CONSUMER_SECRET")
             )
             buildConfigField(
                 "String",
                 "CONSUMER_KEY",
-                localProperties.getProperty("CONSUMER_KEY")
+                localProperties?.getProperty("CONSUMER_KEY") ?: System.getenv("CONSUMER_KEY")
             )
             isMinifyEnabled = false
             proguardFiles(
@@ -70,7 +76,7 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig=true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.8"
