@@ -10,4 +10,8 @@ class AccessToken(
     @field:SerializedName("expires_in")
     @field:Expose
     private val expiresIn: String
-)
+){
+    override fun toString(): String {
+        return "AccessToken(accessToken = $accessToken, expiresIn = $expiresIn)"
+    }
+}

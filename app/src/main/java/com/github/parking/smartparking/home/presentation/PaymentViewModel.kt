@@ -11,6 +11,7 @@ import com.github.parking.smartparking.home.domain.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -61,6 +62,9 @@ class PaymentViewModel @Inject constructor(
 
 
     private fun makePayment(){
+        _state.update { it.copy(isLoading = true) }
+        println("make payment called ")
+        println("The state is ${state.value}")
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             val phoneNumber = validatePhoneNumber(state.value.phoneNumber)
@@ -77,7 +81,7 @@ class PaymentViewModel @Inject constructor(
                     description = state.value.description,
                     type = state.value.type
                 )
-                repository.sendSTKPush(request).collect { stkPushResponseResource ->
+                repository.sendSTKPush(request).collectLatest { stkPushResponseResource ->
                     when(stkPushResponseResource){
                         is Resource.Success -> {
                             _state.update { it.copy(isLoading = false) }

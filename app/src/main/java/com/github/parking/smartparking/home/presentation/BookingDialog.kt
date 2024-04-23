@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -59,7 +60,9 @@ fun BookingDialog(
     viewmodel: PaymentViewModel = hiltViewModel()
 ) {
     val selectedSlot = provider.slots.find { it.number == selectedSlotNumber }!!
-    val state = viewmodel.state.collectAsState().value
+    val state = viewmodel.state.collectAsState()
+    println("Selected Slot: $selectedSlot")
+    println("The state: $state.value")
 
     Dialog(
         onDismissRequest = navigator::navigateUp,
@@ -170,7 +173,7 @@ fun BookingDialog(
                     }
 
                     InputTextField(
-                        textValue = state.phoneNumber,
+                        textValue = state.value.phoneNumber,
                         labelText = "Phone Number",
                         onValueChange = {
                             viewmodel.onEvent(PaymentViewModel.PaymentEvent.PhoneNumberChanged(it))
@@ -180,24 +183,38 @@ fun BookingDialog(
                             keyboardType = KeyboardType.Phone,
                             imeAction = androidx.compose.ui.text.input.ImeAction.Done
                         ),
-                        isError = state.phoneNumberError != null,
-                        supportText = state.phoneNumberError
+                        isError = state.value.phoneNumberError != null,
+                        supportText = state.value.phoneNumberError
                     )
 
                     AButton(
                         text = "Reserve Slot",
                         onClick = { viewmodel.onEvent(PaymentViewModel.PaymentEvent.MakePayment) },
                         modifier = Modifier,
-                        buttonEnabled = { state.payButtonEnabled && !state.isLoading})
+                        buttonEnabled = { state.value.payButtonEnabled && !state.value.isLoading })
                 }
 
-                if (state.isLoading) {
-                    LoadingDialog(modifier = Modifier.align(Alignment.Center))
-                    Text(
-                        text = "Processing,Waiting for Payment...",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center
-                    )
+                if (state.value.isLoading) {
+                    ElevatedCard(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.Center)
+                            .padding(16.dp),
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            LoadingDialog(modifier = Modifier.align(Alignment.Center))
+                            Text(
+                                text = "Processing, Waiting for Payment...",
+                                style = MaterialTheme.typography.bodyMedium,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+                    }
                 }
             }
 

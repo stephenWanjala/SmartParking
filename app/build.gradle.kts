@@ -60,7 +60,9 @@ android {
                 "CONSUMER_KEY",
                 "\"${System.getenv("CONSUMER_KEY") ?: localProperties?.getProperty("CONSUMER_KEY")}\""
             )
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

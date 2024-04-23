@@ -92,8 +92,10 @@ object MpesaPay {
         var stkPushResponse: STKPushResponse? = null
         mApiClient.mpesaService().sendPush(stkPush).enqueue(object : Callback<STKPushResponse> {
             override fun onResponse(call: Call<STKPushResponse>, response: Response<STKPushResponse>) {
+                println("response Get Token: ${response.body()}")
                 try {
                     if (response.isSuccessful) {
+                        println("response Get Token: ${response.body()}")
                         Log.v("Resp", response.body().toString())
                         stkPushResponse = response.body()
                     } else {
@@ -123,17 +125,23 @@ object MpesaPay {
                 if (response.isSuccessful) {
                     mApiClient.setAuthToken(response.body()!!.accessToken)
                  stkPushResponse= performSTKPush(transactionDetails)
+                    println("response Get Token: ${response.body()}")
+                    println("StkPushResponse: $stkPushResponse")
                     Log.v("Resp", response.body().toString())
                 } else {
                     Log.v("Resp", response.body().toString())
                     stkPushResponse = null
+                    println("The response failed? ${response.body()}")
                 }
             }
 
             override fun onFailure(call: Call<AccessToken>, t: Throwable) {
                 t.printStackTrace()
+                println("The response failed? ${t.localizedMessage}")
             }
         })
+        
+        println("The stKResponse: $stkPushResponse")
         return stkPushResponse
     }
 }
