@@ -5,10 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.github.parking.smartparking.auth.core.domain.repository.AuthRepository
 import com.github.parking.smartparking.auth.core.util.Resource
 import com.github.parking.smartparking.auth.core.util.UiText
+import com.github.parking.smartparking.home.data.remote.MpesaPay.toSTkQuery
 import com.github.parking.smartparking.home.domain.PaymentRepository
+import com.github.parking.smartparking.home.domain.model.STKPushQueryResponse
+import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
@@ -25,50 +29,53 @@ class PaymentViewModel @Inject constructor(
     private val _state = MutableStateFlow(PaymentState())
     val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(500), PaymentState())
 
-     fun onEvent(event: PaymentEvent) {
+    fun onEvent(event: PaymentEvent) {
         when (event) {
             is PaymentEvent.CashAmountChanged -> {
                 _state.update { it.copy(cashAmount = event.cashAmount) }
-                if (state.value.cashAmount > 0 && state.value.phoneNumber.isNotEmpty()
-                    && state.value.phoneNumber.length == 10
-                    && state.value.phoneNumber.startsWith("0")
-                    && state.value.phoneNumber.all { it.isDigit() }
-                    ) {
-                    _state.update { it.copy(payButtonEnabled = true) }
-                } else {
-                    _state.update { it.copy(payButtonEnabled = false) }
-                }
+
             }
 
-            PaymentEvent.MakePayment ->{
+            PaymentEvent.MakePayment -> {
                 makePayment()
             }
+
             is PaymentEvent.PhoneNumberChanged -> {
                 _state.update { it.copy(phoneNumber = event.phoneNumber) }
                 val phoneNumber = validatePhoneNumber(state.value.phoneNumber)
-                if(phoneNumber != null ) {
+                if (phoneNumber != null) {
                     _state.update { it.copy(phoneNumberError = null) }
                     if (state.value.cashAmount > 0 && state.value.phoneNumber.isNotEmpty()
-                        ) {
+                    ) {
                         _state.update { it.copy(payButtonEnabled = true) }
                     }
                 } else {
-                    _state.update { it.copy(phoneNumberError = "Invalid phone number", payButtonEnabled = false) }
-
+                    _state.update {
+                        it.copy(
+                            phoneNumberError = "Invalid phone number",
+                            payButtonEnabled = false
+                        )
                     }
+
+                }
+            }
+
+            PaymentEvent.QueryStatus -> {
+                queryStatus()
+
             }
         }
     }
 
 
-    private fun makePayment(){
+    private fun makePayment() {
         _state.update { it.copy(isLoading = true) }
         println("make payment called ")
         println("The state is ${state.value}")
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
             val phoneNumber = validatePhoneNumber(state.value.phoneNumber)
-            if(phoneNumber != null) {
+            if (phoneNumber != null) {
                 val request = TransactionDetails(
                     phoneNumber = phoneNumber,
                     passKey = state.value.passKey,
@@ -82,10 +89,16 @@ class PaymentViewModel @Inject constructor(
                     type = state.value.type
                 )
                 repository.sendSTKPush(request).collectLatest { stkPushResponseResource ->
-                    when(stkPushResponseResource){
+                    when (stkPushResponseResource) {
                         is Resource.Success -> {
-                            _state.update { it.copy(isLoading = false) }
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    stkPushResponse = stkPushResponseResource.data,
+                                )
+                            }
                         }
+
                         is Resource.Error -> {
                             _state.update { it.copy(isLoading = false, error = it.error) }
                         }
@@ -96,11 +109,32 @@ class PaymentViewModel @Inject constructor(
                         }
                     }
                 }
+            }
         }
     }
+
+    private fun queryStatus() {
+        viewModelScope.launch {
+            delay(3000)  // delay for 3 second
+            if (state.value.stkPushResponse != null) {
+                repository.querySTKPush(request = state.value.stkPushResponse!!.toSTkQuery()).collectLatest { response->
+                    when(response){
+                        is Resource.Error -> {
+                            _state.update { it.copy(isLoading = false, error = response.uiText, transactionStatus = null) }
+                        }
+                        is Resource.Loading -> {
+                            _state.update { it.copy(isLoading = true, transactionStatus = null) }
+                        }
+                        is Resource.Success -> {
+                            _state.update { it.copy(isLoading = false, transactionStatus = response.data?.ResultCode) }
+                        }
+                    }
+                }
+            } else {
+                return@launch
+            }
+        }
     }
-
-
 
 
     private fun validatePhoneNumber(phoneNumber: String): String? {
@@ -110,7 +144,7 @@ class PaymentViewModel @Inject constructor(
             phoneNumber.replace("^+".toRegex(), "")
         } else if (
             phoneNumber.isNotEmpty() &&
-            phoneNumber.length < 11 && phoneNumber.startsWith("0")
+            phoneNumber.length == 10 && (phoneNumber.startsWith("07") || phoneNumber.startsWith("01"))
         ) {
             phoneNumber.replaceFirst("^0".toRegex(), "254")
         } else {
@@ -118,8 +152,6 @@ class PaymentViewModel @Inject constructor(
         }
 
     }
-
-
 
 
     data class PaymentState(
@@ -137,6 +169,9 @@ class PaymentViewModel @Inject constructor(
         val isLoading: Boolean = false,
         val payButtonEnabled: Boolean = false,
         val phoneNumberError: String? = null,
+        val stkPushQueryResponse: STKPushQueryResponse? = null,
+        val stkPushResponse: STKPushResponse? = null,
+        val transactionStatus: String? = null
     )
 
 
@@ -144,6 +179,7 @@ class PaymentViewModel @Inject constructor(
         data class PhoneNumberChanged(val phoneNumber: String) : PaymentEvent
         data class CashAmountChanged(val cashAmount: Int) : PaymentEvent
         data object MakePayment : PaymentEvent
+        data object QueryStatus : PaymentEvent
 
     }
 }

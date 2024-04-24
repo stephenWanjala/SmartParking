@@ -5,10 +5,12 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.github.parking.smartparking.home.domain.model.AccessToken
 import com.github.parking.smartparking.home.domain.model.STKPush
+import com.github.parking.smartparking.home.domain.model.STKPushQuery
+import com.github.parking.smartparking.home.domain.model.STKPushQueryResponse
+import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
 import com.github.parking.smartparking.home.domain.utils.Utils
-import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -28,7 +30,7 @@ object MpesaPay {
         transactionType: String,
         passKey: String,
         callbackUrl: String
-    ) : STKPushResponse?{
+    ): STKPushResponse? {
         model.phoneNumber = phoneNumber
         model.payBill = payBill
         model.partyB = partyB
@@ -39,10 +41,10 @@ object MpesaPay {
         model.partyA = partyA
         model.passKey = passKey
         model.callBackUrl = callbackUrl
-       return  getAccessToken(model)
+        return getAccessToken(model)
     }
 
-    fun sendPush(transactionDetails: TransactionDetails): STKPushResponse?{
+    fun sendPush(transactionDetails: TransactionDetails): STKPushResponse? {
         return getAccessToken(transactionDetails)
     }
 
@@ -50,7 +52,7 @@ object MpesaPay {
         phoneNumber: String, cash: String, payBill: String, partyB: String,
         accReference: String, transDesc: String, passKey: String, callbackUrl: String
     ): STKPushResponse? {
-       return sendPush(
+        return sendPush(
             phoneNumber,
             cash,
             payBill,
@@ -91,7 +93,10 @@ object MpesaPay {
         mApiClient.setGetAccessToken(false)
         var stkPushResponse: STKPushResponse? = null
         mApiClient.mpesaService().sendPush(stkPush).enqueue(object : Callback<STKPushResponse> {
-            override fun onResponse(call: Call<STKPushResponse>, response: Response<STKPushResponse>) {
+            override fun onResponse(
+                call: Call<STKPushResponse>,
+                response: Response<STKPushResponse>
+            ) {
                 println("response Get Token: ${response.body()}")
                 try {
                     if (response.isSuccessful) {
@@ -115,7 +120,7 @@ object MpesaPay {
         return stkPushResponse
     }
 
-    private fun getAccessToken(transactionDetails: TransactionDetails): STKPushResponse?{
+    private fun getAccessToken(transactionDetails: TransactionDetails): STKPushResponse? {
         var stkPushResponse: STKPushResponse? = null
         mApiClient.setGetAccessToken(true)
         mApiClient.mpesaService().accessToken().enqueue(object : Callback<AccessToken> {
@@ -124,10 +129,12 @@ object MpesaPay {
 
                 if (response.isSuccessful) {
                     mApiClient.setAuthToken(response.body()!!.accessToken)
-                 stkPushResponse= performSTKPush(transactionDetails)
+                    stkPushResponse = performSTKPush(transactionDetails)
                     println("response Get Token: ${response.body()}")
                     println("StkPushResponse: $stkPushResponse")
-                    Log.v("Resp", response.body().toString())
+                    Log.v("Response of Push", response.body().toString())
+//                    query status
+
                 } else {
                     Log.v("Resp", response.body().toString())
                     stkPushResponse = null
@@ -140,10 +147,71 @@ object MpesaPay {
                 println("The response failed? ${t.localizedMessage}")
             }
         })
-        
+
         println("The stKResponse: $stkPushResponse")
+
         return stkPushResponse
     }
+
+//
+    fun performQueryPush(stkPushQuery: STKPushQuery):STKPushQueryResponse? {
+        var stkPushQueryResponse: STKPushQueryResponse? = null
+        mApiClient.mpesaService().queryPush(stkPushQuery).enqueue(object : Callback<STKPushQueryResponse> {
+            override fun onResponse(call: Call<STKPushQueryResponse>, response: Response<STKPushQueryResponse>) {
+                if (response.isSuccessful) {
+                    stkPushQueryResponse = response.body()
+                    println("response Get Token: ${response.body()}")
+                    Log.v("Resp", response.body().toString())
+                } else {
+                    Log.v("Resp", response.body().toString())
+                    stkPushQueryResponse = null
+                    println("The response failed? ${response.body()}")
+                }
+            }
+
+            override fun onFailure(call: Call<STKPushQueryResponse>, t: Throwable) {
+                t.printStackTrace()
+                println("The response failed? ${t.localizedMessage}")
+            }
+        })
+
+        println("The stKResponse: $stkPushQueryResponse")
+        return stkPushQueryResponse
+    }
+
+    fun queryPush(stkPushQuery: STKPushQuery):STKPushQueryResponse? {
+        var stkPushQueryResponse:STKPushQueryResponse? = null
+        mApiClient.setGetAccessToken(true)
+        mApiClient.mpesaService().accessToken().enqueue(object : Callback<AccessToken> {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onResponse(call: Call<AccessToken>, response: Response<AccessToken>) {
+                if (response.isSuccessful) {
+                    mApiClient.setAuthToken(response.body()!!.accessToken)
+                   stkPushQueryResponse= performQueryPush(stkPushQuery)
+                    println("response Get Token: ${response.body()}")
+                    Log.v("Resp", response.body().toString())
+                } else {
+                    Log.v("Resp", response.body().toString())
+                    println("The response failed? ${response.body()}")
+                    stkPushQueryResponse=null
+                }
+            }
+
+            override fun onFailure(call: Call<AccessToken>, t: Throwable) {
+                t.printStackTrace()
+                println("The response failed? ${t.localizedMessage}")
+            }
+        })
+        println("The stKQueryResponse: $stkPushQueryResponse")
+        return stkPushQueryResponse
+    }
+
+    fun STKPushResponse.toSTkQuery():STKPushQuery=STKPushQuery(
+        BusinessShortCode = MerchantRequestID,
+        Password = CheckoutRequestID,
+        Timestamp = ResponseCode,
+        CheckoutRequestID = ResponseDescription
+    )
 }
 
 

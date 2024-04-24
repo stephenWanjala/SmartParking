@@ -1,6 +1,7 @@
 package com.github.parking.smartparking.home.domain.model
 
 import android.os.Parcelable
+import com.github.parking.smartparking.home.data.remote.MpesaPay.toSTkQuery
 import kotlinx.parcelize.Parcelize
 import java.io.Serializable
 
@@ -11,4 +12,14 @@ data class STKPushResponse(
     val ResponseCode: String,
     val ResponseDescription: String,
     val CustomerMessage: String
-) : Serializable, Parcelable
+) : Serializable, Parcelable{
+    fun STKPushResponse.toSTkQuery():STKPushQuery=STKPushQuery(
+        BusinessShortCode = MerchantRequestID,
+        Password = CheckoutRequestID,
+        Timestamp = ResponseCode,
+        CheckoutRequestID = ResponseDescription
+    )
+}
+
+
+

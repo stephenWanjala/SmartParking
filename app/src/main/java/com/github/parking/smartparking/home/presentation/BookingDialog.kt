@@ -20,6 +20,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableIntStateOf
@@ -61,8 +62,11 @@ fun BookingDialog(
 ) {
     val selectedSlot = provider.slots.find { it.number == selectedSlotNumber }!!
     val state = viewmodel.state.collectAsState()
-    println("Selected Slot: $selectedSlot")
-    println("The state: $state.value")
+   LaunchedEffect(state.value) {
+       println("LaunchedEffect ${state.value}")
+   }
+
+
 
     Dialog(
         onDismissRequest = navigator::navigateUp,
@@ -81,6 +85,10 @@ fun BookingDialog(
             val parkingCost = remember(key1 = parkingTime.intValue) {
                 derivedStateOf { provider.hourlyRate * parkingTime.intValue }
             }
+            LaunchedEffect(parkingTime.intValue) {
+              viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged(parkingCost.value.toInt()))
+            }
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -161,7 +169,6 @@ fun BookingDialog(
                             labelText = "Cost",
                             onValueChange = {
                                 parkingTime.intValue = it.toInt()
-                                viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged(it.toInt()))
                             },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(

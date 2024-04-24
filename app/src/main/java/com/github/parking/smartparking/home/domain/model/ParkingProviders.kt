@@ -40,7 +40,7 @@ data class ParkingProvider(
                     Slot("9", 9, 1, false),
 
                 ),
-                hourlyRate = 20.0,
+                hourlyRate = 1.0,
                 location = "123 Main St, San Francisco, CA",
                 imageUrl = R.drawable.parking_1
             ),
