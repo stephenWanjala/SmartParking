@@ -19,6 +19,7 @@ import com.github.parking.smartparking.destinations.ChekoutSheetDestination
 import com.github.parking.smartparking.destinations.HomeScreenDestination
 import com.github.parking.smartparking.destinations.ParkingHistoryScreenDestination
 import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
+import com.github.parking.smartparking.destinations.ProfileScreenDestination
 import com.github.parking.smartparking.home.data.ParkingProviderDataInitializer
 import com.github.parking.smartparking.ui.theme.SmartParkingTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
@@ -65,7 +66,8 @@ class MainActivity : ComponentActivity() {
                     ParkingHistoryScreenDestination.route,
                     ParkingProviderScreenDestination.route,
                     BookingDialogDestination.route,
-                    ChekoutSheetDestination.route
+                    ChekoutSheetDestination.route,
+                    ProfileScreenDestination.route,
                 )
                 Scaffold(
                     bottomBar = {

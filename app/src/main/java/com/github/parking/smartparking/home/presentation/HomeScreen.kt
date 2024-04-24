@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.parking.smartparking.R
 import com.github.parking.smartparking.auth.core.presentation.LoadingDialog
 import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
+import com.github.parking.smartparking.destinations.ProfileScreenDestination
 import com.github.parking.smartparking.home.ParkingProvidersViewModel
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.ramcosta.composedestinations.annotation.Destination
@@ -67,12 +68,14 @@ fun HomeScreen(
 
         Scaffold(
             topBar = {
-                SmartParkingApBar()
+                SmartParkingApBar(onprofileIconClick = {
+                    navigator.navigate(ProfileScreenDestination)
+                })
             },
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             }
-            ) { paddingValues ->
+        ) { paddingValues ->
 
             Box(modifier = Modifier.fillMaxSize()) {
                 LazyVerticalStaggeredGrid(
@@ -110,6 +113,7 @@ fun HomeScreen(
 @Composable
 fun SmartParkingApBar(
     modifier: Modifier = Modifier,
+    onprofileIconClick: () -> Unit,
 
     ) {
 
@@ -126,7 +130,8 @@ fun SmartParkingApBar(
                         shape = CircleShape
                     )
                     .clip(CircleShape),
-                onClick = { /*TODO*/ }) {
+                onClick = onprofileIconClick
+            ) {
                 Icon(
                     imageVector = Icons.Rounded.Person, contentDescription = "User",
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
