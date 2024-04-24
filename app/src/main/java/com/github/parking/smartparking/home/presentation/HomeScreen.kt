@@ -155,7 +155,7 @@ fun ParkingProviderCard(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Hourly rate:$ ${provider.hourlyRate}",
+                text = "Hourly rate:Kesh ${provider.hourlyRate}",
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
             )
