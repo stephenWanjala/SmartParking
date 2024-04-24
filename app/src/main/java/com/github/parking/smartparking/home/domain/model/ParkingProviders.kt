@@ -41,7 +41,7 @@ data class ParkingProvider(
 
                 ),
                 hourlyRate = 1.0,
-                location = "123 Main St, San Francisco, CA",
+                location = "123 Main St, Kisumu, CBD",
                 imageUrl = R.drawable.parking_1
             ),
             ParkingProvider(

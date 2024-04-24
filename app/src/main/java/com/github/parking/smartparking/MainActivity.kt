@@ -19,6 +19,7 @@ import com.github.parking.smartparking.destinations.ChekoutSheetDestination
 import com.github.parking.smartparking.destinations.HomeScreenDestination
 import com.github.parking.smartparking.destinations.ParkingHistoryScreenDestination
 import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
+import com.github.parking.smartparking.home.data.ParkingProviderDataInitializer
 import com.github.parking.smartparking.ui.theme.SmartParkingTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -34,6 +35,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        ParkingProviderDataInitializer.initializeParkingProviders(this)
         setContent {
             SmartParkingTheme {
                 val bottomSheetNavigator = rememberBottomSheetNavigator()

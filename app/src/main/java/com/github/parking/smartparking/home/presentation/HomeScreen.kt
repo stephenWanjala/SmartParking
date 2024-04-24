@@ -1,7 +1,9 @@
 package com.github.parking.smartparking.home.presentation
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,17 +25,26 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.parking.smartparking.R
+import com.github.parking.smartparking.auth.core.presentation.LoadingDialog
 import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
+import com.github.parking.smartparking.home.ParkingProvidersViewModel
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -41,31 +52,58 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Destination
 @Composable
 fun HomeScreen(
-    navigator: DestinationsNavigator
+    navigator: DestinationsNavigator,
+    viewModel: ParkingProvidersViewModel = hiltViewModel()
 ) {
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
     ) {
+        val snackbarHostState = remember {
+            SnackbarHostState()
+        }
+        val state = viewModel.state.collectAsState().value
+
+
         Scaffold(
             topBar = {
                 SmartParkingApBar()
             },
-
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            }
             ) { paddingValues ->
-            LazyVerticalStaggeredGrid(
-                modifier = Modifier.padding(paddingValues),
-                columns = StaggeredGridCells.Adaptive(200.dp)
-            ) {
-                items(ParkingProvider.providers) { provider ->
-                    ParkingProviderCard(provider = provider, onclick = {
-                        navigator.navigate(ParkingProviderScreenDestination(it))
-                    })
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                LazyVerticalStaggeredGrid(
+                    modifier = Modifier.padding(paddingValues),
+                    columns = StaggeredGridCells.Adaptive(200.dp)
+                ) {
+                    items(state.providers) { provider ->
+                        ParkingProviderCard(provider = provider, onclick = {
+                            navigator.navigate(ParkingProviderScreenDestination(it))
+                        })
+                    }
+
                 }
 
+                AnimatedVisibility(state.isLoading) {
+                    LoadingDialog(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                    )
+                }
+            }
+
+        }
+        LaunchedEffect(key1 = state.error) {
+            state.error?.let {
+                snackbarHostState.showSnackbar(it.message ?: "An error occurred")
             }
         }
     }
+
+
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
