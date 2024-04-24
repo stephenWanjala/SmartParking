@@ -4,9 +4,17 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.github.parking.smartparking.destinations.BookingDialogDestination
+import com.github.parking.smartparking.destinations.ChekoutSheetDestination
+import com.github.parking.smartparking.destinations.HomeScreenDestination
+import com.github.parking.smartparking.destinations.ParkingHistoryScreenDestination
+import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
 import com.github.parking.smartparking.ui.theme.SmartParkingTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -26,16 +34,43 @@ class MainActivity : ComponentActivity() {
                 val bottomSheetNavigator = rememberBottomSheetNavigator()
                 val engine = rememberAnimatedNavHostEngine()
                 val navController = engine.rememberNavController(bottomSheetNavigator)
-                ModalBottomSheetLayout(
-                    bottomSheetNavigator = bottomSheetNavigator,
-                    sheetShape = RoundedCornerShape(16.dp),
-                ) {
-                    DestinationsNavHost(
-                        navController = navController,
-                        navGraph = NavGraphs.root,
-                        engine = engine
-                    )
+                val bottomNavDestinations: List<BottomBarDestination> = listOf(
+                    BottomBarDestination.HOME,
+                    BottomBarDestination.PARKING_HISTORY
+                )
+
+                val currentDestination =
+                    navController.currentBackStackEntryAsState().value?.destination
+                val showBottomBar = currentDestination?.route in listOf(
+                    HomeScreenDestination.route,
+                    ParkingHistoryScreenDestination.route,
+                    ParkingProviderScreenDestination.route,
+                    BookingDialogDestination.route,
+                    ChekoutSheetDestination.route
+                )
+                Scaffold(
+                    bottomBar = {
+                        AnimatedVisibility(visible = showBottomBar) {
+                            BottomBar(
+                                navController = navController,
+                                items = bottomNavDestinations
+                            )
+                        }
+                    }
+                ){paddingValues ->
+                    val unUsedPadding =paddingValues
+                    ModalBottomSheetLayout(
+                        bottomSheetNavigator = bottomSheetNavigator,
+                        sheetShape = RoundedCornerShape(16.dp),
+                    ) {
+                        DestinationsNavHost(
+                            navController = navController,
+                            navGraph = NavGraphs.root,
+                            engine = engine
+                        )
+                    }
                 }
+
             }
         }
     }

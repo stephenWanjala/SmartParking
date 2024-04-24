@@ -9,4 +9,6 @@
     <string name="already_have_Account">Already Have Account?</string>
     <string name="sign_in">SignIn</string>
     <string name="create_Account">Create Account</string>
+    <string name="home">Home</string>
+    <string name="parking_history">History</string>
 </resources>
