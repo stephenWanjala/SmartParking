@@ -62,9 +62,7 @@ fun BookingDialog(
 ) {
     val selectedSlot = provider.slots.find { it.number == selectedSlotNumber }!!
     val state = viewmodel.state.collectAsState()
-   LaunchedEffect(state.value) {
-       println("LaunchedEffect ${state.value}")
-   }
+    viewmodel.onEvent(PaymentViewModel.PaymentEvent.SelectedSlot(provider, selectedSlot))
 
 
 
@@ -79,14 +77,10 @@ fun BookingDialog(
 //                .padding(16.dp),
             shape = RoundedCornerShape(8.dp)
         ) {
-            val parkingTime = rememberSaveable {
-                mutableIntStateOf(1)
-            }
-            val parkingCost = remember(key1 = parkingTime.intValue) {
-                derivedStateOf { provider.hourlyRate * parkingTime.intValue }
-            }
-            LaunchedEffect(parkingTime.intValue) {
-              viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged(parkingCost.value.toInt()))
+
+
+            LaunchedEffect(state.value.hoursToPark) {
+                viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged((state.value.hoursToPark * provider.hourlyRate).toInt()))
             }
 
             Row(
@@ -147,13 +141,21 @@ fun BookingDialog(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         InputTextField(
-                            textValue = parkingTime.intValue.toString(),
+                            textValue = state.value.hoursToPark.toString(),
                             labelText = "Time to park in Hrs",
                             onValueChange = {
                                 if (it.toIntOrNull() != null) {
-                                    parkingTime.intValue = it.toInt()
+                                    viewmodel.onEvent(
+                                        PaymentViewModel.PaymentEvent.HoursToParkChanged(
+                                            it.toInt()
+                                        )
+                                    )
                                 } else {
-                                    parkingTime.intValue = 0
+                                    viewmodel.onEvent(
+                                        PaymentViewModel.PaymentEvent.HoursToParkChanged(
+                                            1
+                                        )
+                                    )
                                 }
                             },
                             modifier = Modifier.weight(1f),
@@ -165,10 +167,10 @@ fun BookingDialog(
                             )
 
                         InputTextField(
-                            textValue = parkingCost.value.toString(),
+                            textValue = state.value.cashAmount.toString(),
                             labelText = "Cost",
                             onValueChange = {
-                                parkingTime.intValue = it.toInt()
+                               viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged(it.toInt()))
                             },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(

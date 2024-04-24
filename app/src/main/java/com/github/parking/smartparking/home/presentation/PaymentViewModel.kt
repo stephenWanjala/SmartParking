@@ -7,8 +7,10 @@ import com.github.parking.smartparking.auth.core.util.Resource
 import com.github.parking.smartparking.auth.core.util.UiText
 import com.github.parking.smartparking.home.data.remote.MpesaPay.toSTkQuery
 import com.github.parking.smartparking.home.domain.PaymentRepository
+import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.github.parking.smartparking.home.domain.model.STKPushQueryResponse
 import com.github.parking.smartparking.home.domain.model.STKPushResponse
+import com.github.parking.smartparking.home.domain.model.Slot
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -64,6 +66,20 @@ class PaymentViewModel @Inject constructor(
                 queryStatus()
 
             }
+
+            is PaymentEvent.HoursToParkChanged -> {
+                _state.update { it.copy(hoursToPark = event.hoursToPark) }
+            }
+
+            is PaymentEvent.SelectedSlot -> {
+                _state.update {
+                    it.copy(
+                        selectedSlot = event.selectedSlot,
+                        provider = event.provider
+                    )
+                }
+
+            }
         }
     }
 
@@ -117,19 +133,38 @@ class PaymentViewModel @Inject constructor(
         viewModelScope.launch {
             delay(3000)  // delay for 3 second
             if (state.value.stkPushResponse != null) {
-                repository.querySTKPush(request = state.value.stkPushResponse!!.toSTkQuery()).collectLatest { response->
-                    when(response){
-                        is Resource.Error -> {
-                            _state.update { it.copy(isLoading = false, error = response.uiText, transactionStatus = null) }
-                        }
-                        is Resource.Loading -> {
-                            _state.update { it.copy(isLoading = true, transactionStatus = null) }
-                        }
-                        is Resource.Success -> {
-                            _state.update { it.copy(isLoading = false, transactionStatus = response.data?.ResultCode) }
+                repository.querySTKPush(request = state.value.stkPushResponse!!.toSTkQuery())
+                    .collectLatest { response ->
+                        when (response) {
+                            is Resource.Error -> {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        error = response.uiText,
+                                        transactionStatus = null
+                                    )
+                                }
+                            }
+
+                            is Resource.Loading -> {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = true,
+                                        transactionStatus = null
+                                    )
+                                }
+                            }
+
+                            is Resource.Success -> {
+                                _state.update {
+                                    it.copy(
+                                        isLoading = false,
+                                        transactionStatus = response.data?.ResultCode
+                                    )
+                                }
+                            }
                         }
                     }
-                }
             } else {
                 return@launch
             }
@@ -171,13 +206,20 @@ class PaymentViewModel @Inject constructor(
         val phoneNumberError: String? = null,
         val stkPushQueryResponse: STKPushQueryResponse? = null,
         val stkPushResponse: STKPushResponse? = null,
-        val transactionStatus: String? = null
+        val transactionStatus: String? = null,
+        val hoursToPark: Int = 1,
+        val selectedSlot: Slot? = null,
+        val provider: ParkingProvider? = null
     )
 
 
     sealed interface PaymentEvent {
         data class PhoneNumberChanged(val phoneNumber: String) : PaymentEvent
         data class CashAmountChanged(val cashAmount: Int) : PaymentEvent
+        data class HoursToParkChanged(val hoursToPark: Int) : PaymentEvent
+        data class SelectedSlot(val provider: ParkingProvider, val selectedSlot: Slot) :
+            PaymentEvent
+
         data object MakePayment : PaymentEvent
         data object QueryStatus : PaymentEvent
 
