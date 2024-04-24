@@ -36,7 +36,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        ParkingProviderDataInitializer.initializeParkingProviders(this)
+//        ParkingProviderDataInitializer.initializeParkingProviders(this)
         setContent {
             SmartParkingTheme {
                 val bottomSheetNavigator = rememberBottomSheetNavigator()

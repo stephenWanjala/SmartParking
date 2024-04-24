@@ -77,25 +77,32 @@ fun HomeScreen(
             }
         ) { paddingValues ->
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                LazyVerticalStaggeredGrid(
-                    modifier = Modifier.padding(paddingValues),
-                    columns = StaggeredGridCells.Adaptive(200.dp)
-                ) {
-                    items(state.providers) { provider ->
-                        ParkingProviderCard(provider = provider, onclick = {
-                            navigator.navigate(ParkingProviderScreenDestination(it))
-                        })
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues), contentAlignment = Alignment.Center
+            ) {
+                Column(modifier = Modifier.fillMaxSize()) {
+                    LazyVerticalStaggeredGrid(
+                        modifier = Modifier.fillMaxSize(),
+                        columns = StaggeredGridCells.Adaptive(200.dp)
+                    ) {
+                        items(state.providers) { provider ->
+                            ParkingProviderCard(provider = provider, onclick = {
+                                navigator.navigate(ParkingProviderScreenDestination(it))
+                            })
+                        }
+
                     }
 
                 }
-
                 AnimatedVisibility(state.isLoading) {
                     LoadingDialog(
                         modifier = Modifier
                             .align(Alignment.Center)
                     )
                 }
+
             }
 
         }
