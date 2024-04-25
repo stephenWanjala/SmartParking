@@ -1,5 +1,6 @@
 package com.github.parking.smartparking.home.presentation
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -128,7 +129,7 @@ fun ChekoutSheet(
             BookNowButton(price = provider.hourlyRate) {
                 navigator.navigate(
                     BookingDialogDestination(
-                        provider = provider,
+                        provider_id = provider.id,
                         selectedSlotNumber = slot.number
                     )
                 )

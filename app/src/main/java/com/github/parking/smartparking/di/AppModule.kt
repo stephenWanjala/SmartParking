@@ -1,5 +1,7 @@
 package com.github.parking.smartparking.di
 
+import android.app.Application
+import android.content.Context
 import com.github.parking.smartparking.auth.core.data.repositoryImpl.AuthRepositoryImpl
 import com.github.parking.smartparking.auth.core.domain.repository.AuthRepository
 import com.github.parking.smartparking.auth.sigup.domain.usecase.SignUpUseCase
@@ -15,6 +17,7 @@ import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 import com.github.parking.smartparking.home.data.repository.PaymentRepositoryImpl
 import com.github.parking.smartparking.home.domain.utils.Constants.BASE_URL
+import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -71,5 +74,9 @@ object AppModule {
         .baseUrl(BASE_URL)
         .client(okHttpClient)
         .build()
+
+@Provides
+@Singleton
+fun provideContext(app: Application): Context = app.applicationContext
 
 }

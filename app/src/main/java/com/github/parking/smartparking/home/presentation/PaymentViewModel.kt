@@ -1,41 +1,47 @@
 package com.github.parking.smartparking.home.presentation
 
+
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.parking.smartparking.auth.core.domain.repository.AuthRepository
-import com.github.parking.smartparking.auth.core.util.Resource
 import com.github.parking.smartparking.auth.core.util.UiText
-import com.github.parking.smartparking.home.data.remote.MpesaPay.toSTkQuery
-import com.github.parking.smartparking.home.domain.PaymentRepository
+import com.github.parking.smartparking.home.data.remote.MpesaPay
+import com.github.parking.smartparking.home.domain.model.Occupier
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.github.parking.smartparking.home.domain.model.STKPushQueryResponse
 import com.github.parking.smartparking.home.domain.model.STKPushResponse
 import com.github.parking.smartparking.home.domain.model.Slot
 import com.github.parking.smartparking.home.domain.model.TransactionDetails
 import com.github.parking.smartparking.home.domain.utils.Constants
+import com.github.parking.smartparking.loadData
+import com.github.parking.smartparking.saveData
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.WriteBatch
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class PaymentViewModel @Inject constructor(
-    private val repository: PaymentRepository,
-    private val authRepository: AuthRepository
+    private val firebaseAuth: FirebaseAuth,
+    private val firestore: FirebaseFirestore,
+    private val app: Application
 ) : ViewModel() {
     private val _state = MutableStateFlow(PaymentState())
-    val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(500), PaymentState())
+    val state = _state.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PaymentState())
+
+    init {
+        loadProviders()
+    }
 
     fun onEvent(event: PaymentEvent) {
         when (event) {
             is PaymentEvent.CashAmountChanged -> {
                 _state.update { it.copy(cashAmount = event.cashAmount) }
-
             }
 
             PaymentEvent.MakePayment -> {
@@ -62,10 +68,6 @@ class PaymentViewModel @Inject constructor(
                 }
             }
 
-            PaymentEvent.QueryStatus -> {
-                queryStatus()
-
-            }
 
             is PaymentEvent.HoursToParkChanged -> {
                 _state.update { it.copy(hoursToPark = event.hoursToPark) }
@@ -86,87 +88,103 @@ class PaymentViewModel @Inject constructor(
 
     private fun makePayment() {
         _state.update { it.copy(isLoading = true) }
-        println("make payment called ")
-        println("The state is ${state.value}")
-        viewModelScope.launch {
-            _state.update { it.copy(isLoading = true) }
-            val phoneNumber = validatePhoneNumber(state.value.phoneNumber)
-            if (phoneNumber != null) {
-                val request = TransactionDetails(
-                    phoneNumber = phoneNumber,
-                    passKey = state.value.passKey,
-                    cashAmount = state.value.cashAmount,
-                    payBill = state.value.payBill,
-                    accReference = state.value.accReference,
-                    callBackUrl = state.value.callBackUrl,
-                    partyA = state.value.partyA,
-                    partyB = state.value.partyB,
-                    description = state.value.description,
-                    type = state.value.type
-                )
-                repository.sendSTKPush(request).collectLatest { stkPushResponseResource ->
-                    when (stkPushResponseResource) {
-                        is Resource.Success -> {
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    stkPushResponse = stkPushResponseResource.data,
-                                )
-                            }
-                        }
-
-                        is Resource.Error -> {
-                            _state.update { it.copy(isLoading = false, error = it.error) }
-                        }
-
-                        is Resource.Loading -> {
-                            _state.update { it.copy(isLoading = true) }
-
-                        }
+//        update the available slots
+//        add user to the slot
+        // update the provider
+        // update the slot
+        _state.update {
+            it.copy(
+                providers = _state.value.providers.map { provider ->
+                    if (provider.id == state.value.provider!!.id) {
+                        provider.copy(
+                            slots = provider.slots.map { slot ->
+                                if (slot.id == state.value.selectedSlot!!.id) {
+                                    slot.copy(
+                                        isOccupied = true,
+                                        occupiedBy = Occupier(
+                                            hours = state.value.hoursToPark,
+                                            amount = state.value.cashAmount,
+                                            user = FirebaseAuth.getInstance().currentUser!!.uid
+                                        )
+                                    )
+                                } else {
+                                    slot
+                                }
+                            }.toMutableList()
+                        )
+                    } else {
+                        provider
                     }
                 }
-            }
+            )
+        }.also {
+            saveData(app, state.value.providers.toMutableList())
         }
-    }
+        try {
+            val output = MpesaPay.sendPush(
+                TransactionDetails(
+                    state.value.phoneNumber,
+                    state.value.passKey,
+                    state.value.cashAmount,
+                    state.value.payBill,
+                    state.value.accReference,
+                    state.value.callBackUrl,
+                    state.value.partyA,
+                    state.value.partyB,
+                    state.value.description,
+                    state.value.type
+                )
+            )
+            ParkingProvider.providers.find {
+                it.id == state.value.provider!!.id
+            }?.let { provider ->
+                provider.slots.find { it.id == state.value.selectedSlot!!.id }?.copy(
+                    isOccupied = true,
+                    occupiedBy = Occupier(
+                        hours = state.value.hoursToPark,
+                        amount = state.value.cashAmount,
+                        user = FirebaseAuth.getInstance().currentUser!!.uid
+                    )
+                )?.let { slot ->
+                    provider.slots[provider.slots.indexOfFirst { it.id == slot.id }] = slot
+                }
+                println("Provider is $provider and has changed")
 
-    private fun queryStatus() {
-        viewModelScope.launch {
-            delay(3000)  // delay for 3 second
-            if (state.value.stkPushResponse != null) {
-                repository.querySTKPush(request = state.value.stkPushResponse!!.toSTkQuery())
-                    .collectLatest { response ->
-                        when (response) {
-                            is Resource.Error -> {
-                                _state.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        error = response.uiText,
-                                        transactionStatus = null
-                                    )
-                                }
-                            }
-
-                            is Resource.Loading -> {
-                                _state.update {
-                                    it.copy(
-                                        isLoading = true,
-                                        transactionStatus = null
-                                    )
-                                }
-                            }
-
-                            is Resource.Success -> {
-                                _state.update {
-                                    it.copy(
-                                        isLoading = false,
-                                        transactionStatus = response.data?.ResultCode
-                                    )
-                                }
-                            }
-                        }
-                    }
-            } else {
-                return@launch
+            }
+            _state.update { it.copy(stkPushResponse = output) }
+            firestore.collection("transactions").document(firebaseAuth.uid!!).set(output)
+            val batch: WriteBatch = firestore.batch()
+            val providerRef =
+                firestore.collection("providers").document(state.value.provider!!.id)
+            println("Provider ref is $providerRef")
+            batch.update(
+                providerRef,
+                "availableSlots",
+                state.value.provider!!.availableSlots - 1
+            )
+            // Create a document reference for the slot
+            val slotRef =
+                providerRef.collection("slots").document(state.value.selectedSlot!!.id)
+            // Update the slot's occupancy status
+            batch.update(slotRef, "isOccupied", true)
+            batch.commit().addOnSuccessListener {
+                _state.update { it.copy(navigate = true, isLoading = false) }
+            }.addOnFailureListener { ex ->
+                _state.update {
+                    it.copy(
+                        error = UiText.DynamicString(
+                            ex.message ?: "An error occurred"
+                        )
+                    )
+                }
+            }
+        } catch (e: Exception) {
+            _state.update {
+                it.copy(
+                    error = UiText.DynamicString(
+                        e.message ?: "An error occurred"
+                    )
+                )
             }
         }
     }
@@ -186,6 +204,25 @@ class PaymentViewModel @Inject constructor(
             null
         }
 
+    }
+
+    private fun loadProviders() {
+        val data = loadData(context = app)
+        if (data != null) {
+            ParkingProvider.providers.clear()
+            ParkingProvider.providers.addAll(data)
+            _state.update { it.copy(providers = ParkingProvider.providers) }
+        }
+    }
+
+    fun getOccupiedSlotsByCurrentUser(): Map<ParkingProvider, List<Slot>> {
+        val currentUserUid = firebaseAuth.currentUser?.uid
+        return state.value.providers.mapNotNull { provider ->
+            provider.slots.filter { it.occupiedBy?.user == currentUserUid }
+                .takeIf { it.isNotEmpty() }?.let { slots ->
+                provider to slots
+            }
+        }.toMap()
     }
 
 
@@ -209,7 +246,9 @@ class PaymentViewModel @Inject constructor(
         val transactionStatus: String? = null,
         val hoursToPark: Int = 1,
         val selectedSlot: Slot? = null,
-        val provider: ParkingProvider? = null
+        val provider: ParkingProvider? = null,
+        val navigate: Boolean = false,
+        val providers: List<ParkingProvider> = emptyList()
     )
 
 
@@ -221,8 +260,9 @@ class PaymentViewModel @Inject constructor(
             PaymentEvent
 
         data object MakePayment : PaymentEvent
-        data object QueryStatus : PaymentEvent
+//        data object QueryStatus : PaymentEvent
 
     }
 }
+
 

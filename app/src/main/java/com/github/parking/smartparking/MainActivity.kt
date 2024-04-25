@@ -1,5 +1,6 @@
 package com.github.parking.smartparking
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -21,6 +22,7 @@ import com.github.parking.smartparking.destinations.ParkingHistoryScreenDestinat
 import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
 import com.github.parking.smartparking.destinations.ProfileScreenDestination
 import com.github.parking.smartparking.home.data.ParkingProviderDataInitializer
+import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.github.parking.smartparking.ui.theme.SmartParkingTheme
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
@@ -29,6 +31,8 @@ import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.animations.defaults.RootNavGraphDefaultAnimations
 import com.ramcosta.composedestinations.animations.rememberAnimatedNavHostEngine
 import dagger.hilt.android.AndroidEntryPoint
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -36,7 +40,14 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-//        ParkingProviderDataInitializer.initializeParkingProviders(this)
+        ParkingProviderDataInitializer.initializeParkingProviders(this)
+        val providers = loadData(this)
+        if (providers == null) {
+            ParkingProviderDataInitializer.initializeParkingProviders(this)
+            saveData(this, ParkingProvider.providers )
+        } else {
+            ParkingProvider.providers = providers
+        }
         setContent {
             SmartParkingTheme {
                 val bottomSheetNavigator = rememberBottomSheetNavigator()
@@ -96,6 +107,30 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+
+fun saveData(context: Context, providers: MutableList<ParkingProvider>) {
+    val fileOutputStream = context.openFileOutput("providers.data", Context.MODE_PRIVATE)
+    val objectOutputStream = ObjectOutputStream(fileOutputStream)
+    objectOutputStream.writeObject(providers)
+    objectOutputStream.close()
+    fileOutputStream.close()
+}
+
+fun loadData(context: Context): MutableList<ParkingProvider>? {
+    try {
+        val fileInputStream = context.openFileInput("providers.data")
+        val objectInputStream = ObjectInputStream(fileInputStream)
+        val providers = objectInputStream.readObject() as MutableList<ParkingProvider>
+        objectInputStream.close()
+        fileInputStream.close()
+        return providers
+    } catch (e: Exception) {
+        e.printStackTrace()
+        return null
+    }
+}
+
 
 
 

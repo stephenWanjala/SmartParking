@@ -44,7 +44,7 @@ object MpesaPay {
         return getAccessToken(model)
     }
 
-    fun sendPush(transactionDetails: TransactionDetails): STKPushResponse? {
+    fun sendPush(transactionDetails: TransactionDetails): STKPushResponse {
         return getAccessToken(transactionDetails)
     }
 
@@ -120,7 +120,7 @@ object MpesaPay {
         return stkPushResponse
     }
 
-    private fun getAccessToken(transactionDetails: TransactionDetails): STKPushResponse? {
+    private fun getAccessToken(transactionDetails: TransactionDetails): STKPushResponse {
         var stkPushResponse: STKPushResponse? = null
         mApiClient.setGetAccessToken(true)
         mApiClient.mpesaService().accessToken().enqueue(object : Callback<AccessToken> {
@@ -150,7 +150,11 @@ object MpesaPay {
 
         println("The stKResponse: $stkPushResponse")
 
-        return stkPushResponse
+        if (stkPushResponse != null) {
+            return stkPushResponse!!
+        } else {
+            throw Exception("An error occurred  Response cant be null")
+        }
     }
 
 //

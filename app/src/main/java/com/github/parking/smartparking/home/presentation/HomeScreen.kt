@@ -1,6 +1,6 @@
 package com.github.parking.smartparking.home.presentation
 
-import androidx.compose.animation.AnimatedVisibility
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -30,7 +30,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -42,10 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.parking.smartparking.R
-import com.github.parking.smartparking.auth.core.presentation.LoadingDialog
 import com.github.parking.smartparking.destinations.ParkingProviderScreenDestination
 import com.github.parking.smartparking.destinations.ProfileScreenDestination
-import com.github.parking.smartparking.home.ParkingProvidersViewModel
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
@@ -54,8 +51,10 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Composable
 fun HomeScreen(
     navigator: DestinationsNavigator,
-    viewModel: ParkingProvidersViewModel = hiltViewModel()
-) {
+    viewModel: PaymentViewModel =hiltViewModel(),
+
+    ) {
+    val state = viewModel.state.collectAsState().value
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background,
@@ -63,7 +62,6 @@ fun HomeScreen(
         val snackbarHostState = remember {
             SnackbarHostState()
         }
-        val state = viewModel.state.collectAsState().value
 
 
         Scaffold(
@@ -89,28 +87,19 @@ fun HomeScreen(
                     ) {
                         items(state.providers) { provider ->
                             ParkingProviderCard(provider = provider, onclick = {
-                                navigator.navigate(ParkingProviderScreenDestination(it))
+                                navigator.navigate(ParkingProviderScreenDestination(it.id))
                             })
                         }
 
                     }
 
                 }
-                AnimatedVisibility(state.isLoading) {
-                    LoadingDialog(
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                    )
-                }
+
 
             }
 
         }
-        LaunchedEffect(key1 = state.error) {
-            state.error?.let {
-                snackbarHostState.showSnackbar(it.message ?: "An error occurred")
-            }
-        }
+
     }
 
 
