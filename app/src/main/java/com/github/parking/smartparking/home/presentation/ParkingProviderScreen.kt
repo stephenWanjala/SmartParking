@@ -1,5 +1,6 @@
 package com.github.parking.smartparking.home.presentation
 
+
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.spring
@@ -45,10 +46,11 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 @Destination
 @Composable
 fun ParkingProviderScreen(
-    provider: ParkingProvider,
+    provider_id: String,
     navigator: DestinationsNavigator,
 
     ) {
+    val provider =ParkingProvider.providers.find { it.id == provider_id }!!
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->

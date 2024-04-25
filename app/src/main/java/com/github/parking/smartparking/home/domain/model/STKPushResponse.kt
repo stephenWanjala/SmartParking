@@ -13,12 +13,7 @@ data class STKPushResponse(
     val ResponseDescription: String,
     val CustomerMessage: String
 ) : Serializable, Parcelable{
-    fun STKPushResponse.toSTkQuery():STKPushQuery=STKPushQuery(
-        BusinessShortCode = MerchantRequestID,
-        Password = CheckoutRequestID,
-        Timestamp = ResponseCode,
-        CheckoutRequestID = ResponseDescription
-    )
+
 }
 
 

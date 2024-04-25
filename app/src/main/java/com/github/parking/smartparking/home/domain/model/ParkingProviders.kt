@@ -1,19 +1,19 @@
 package com.github.parking.smartparking.home.domain.model
-
 import android.os.Parcelable
 import com.github.parking.smartparking.R
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
+import java.io.Serializable
 
 @Parcelize
 data class ParkingProvider(
     val id: String,
     val name: String,
-    val slots: List<Slot>,
+    var slots: MutableList<Slot>, // Changed to var and MutableList
     val hourlyRate: Double,
     val location: String,
     val imageUrl: Int
-) : Parcelable {
+) : Parcelable ,Serializable{
     val availableSlots: Int
         get() = slots.count { !it.isOccupied }
 
@@ -22,13 +22,12 @@ data class ParkingProvider(
     val isFull: Boolean
         get() = availableSlots == 0
 
-
-     companion object{
-        val providers = listOf(
+    companion object{
+        var providers = mutableListOf( // Changed to var and MutableList
             ParkingProvider(
                 id = "1",
                 name = "Secure Garage Parking",
-                slots = listOf(
+                slots = mutableListOf(
                     Slot("1", 1, 1, true),
                     Slot("2", 2, 1, true),
                     Slot("3", 3, 1, false),
@@ -38,7 +37,6 @@ data class ParkingProvider(
                     Slot("7", 7, 1, false),
                     Slot("8", 8, 1, false),
                     Slot("9", 9, 1, false),
-
                 ),
                 hourlyRate = 1.0,
                 location = "123 Main St, Kisumu, CBD",
@@ -47,7 +45,7 @@ data class ParkingProvider(
             ParkingProvider(
                 id = "2",
                 name = "Water Loon Parking",
-                slots = listOf(
+                slots = mutableListOf(
                     Slot("1", 1, 1, false),
                     Slot("2", 2, 1, true),
                     Slot("3", 3, 1, false),
@@ -66,7 +64,5 @@ data class ParkingProvider(
                 imageUrl = R.drawable.parking_2,
             ),
         )
-
-     }
+    }
 }
-

@@ -1,5 +1,6 @@
 package com.github.parking.smartparking.home.presentation
 
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,10 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -38,36 +35,41 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.parking.smartparking.auth.core.presentation.AButton
 import com.github.parking.smartparking.auth.core.presentation.LoadingDialog
 import com.github.parking.smartparking.auth.signin.presentation.componets.InputTextField
+import com.github.parking.smartparking.destinations.HomeScreenDestination
 import com.github.parking.smartparking.home.domain.model.ParkingProvider
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 
-object NonDismissableDialog : DestinationStyle.Dialog {
-    override val properties = DialogProperties(
-        dismissOnClickOutside = false,
-        dismissOnBackPress = false,
-    )
-}
 
 @Composable
 @Destination(
-    style = NonDismissableDialog::class
+    style = DestinationStyle.Dialog::class
 )
 fun BookingDialog(
     navigator: DestinationsNavigator,
-    provider: ParkingProvider,
+    provider_id: String,
     selectedSlotNumber: Int,
     viewmodel: PaymentViewModel = hiltViewModel()
 ) {
+    val provider = ParkingProvider.providers.find { it.id == provider_id }!!
     val selectedSlot = provider.slots.find { it.number == selectedSlotNumber }!!
     val state = viewmodel.state.collectAsState()
     viewmodel.onEvent(PaymentViewModel.PaymentEvent.SelectedSlot(provider, selectedSlot))
 
-
+    LaunchedEffect(state.value) {
+        println(state.value)
+        if (state.value.stkPushResponse != null) {
+            navigator.navigate(HomeScreenDestination) {
+                popUpTo(HomeScreenDestination.route) {
+                    inclusive = true
+                }
+            }
+        }
+    }
 
     Dialog(
-        onDismissRequest = navigator::navigateUp,
+        onDismissRequest = navigator::popBackStack,
         properties = DialogProperties(dismissOnClickOutside = false, dismissOnBackPress = false)
     ) {
         Card(
@@ -170,7 +172,7 @@ fun BookingDialog(
                             textValue = state.value.cashAmount.toString(),
                             labelText = "Cost",
                             onValueChange = {
-                               viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged(it.toInt()))
+                                viewmodel.onEvent(PaymentViewModel.PaymentEvent.CashAmountChanged(it.toInt()))
                             },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(
@@ -198,7 +200,14 @@ fun BookingDialog(
 
                     AButton(
                         text = "Reserve Slot",
-                        onClick = { viewmodel.onEvent(PaymentViewModel.PaymentEvent.MakePayment) },
+                        onClick = {
+                            viewmodel.onEvent(PaymentViewModel.PaymentEvent.MakePayment)
+                            navigator.navigate(HomeScreenDestination) {
+                                popUpTo(HomeScreenDestination.route) {
+                                    inclusive = true
+                                }
+                            }
+                        },
                         modifier = Modifier,
                         buttonEnabled = { state.value.payButtonEnabled && !state.value.isLoading })
                 }
