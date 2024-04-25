@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -74,12 +75,16 @@ fun ParkingHistoryScreen(
                                             shape = MaterialTheme.shapes.medium,
                                             modifier = Modifier.padding(8.dp)
                                         ) {
-                                            Column(modifier = Modifier.padding(8.dp)) {
+                                            Column(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(8.dp)
+                                            ) {
                                                 Text(text = "Slot: ${slot.id}")
                                                 Text(text = "SlotNumber: ${slot.number}")
                                                 Text(text = "Floor: ${slot.floor}")
                                                 Text(text = "Booked For : ${slot.occupiedBy?.hours} hrs")
-                                                Text(text = "Pay : ${slot.occupiedBy?.amount} hrs")
+                                                Text(text = "Pay :Kesh ${slot.occupiedBy?.amount} ")
                                             }
                                         }
                                     }
