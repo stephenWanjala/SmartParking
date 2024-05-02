@@ -22,7 +22,7 @@ firebaseAuth = "22.3.1"
 firebaseDatabase = "20.3.1"
 firebaseFirestore = "24.11.1"
 materialIconsCore = "1.6.7"
-material3 = "1.2.0-rc01"
+material3 = "1.2.1"
 okhttp = "4.9.1"
 
 
